@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin tool (private)</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f1f1f1;margin:0;padding:1.5rem;color:#1a1a1a}
+.c{max-width:34rem;margin:0 auto 1.2rem;background:#fff;border:1px solid #d8d8d8;border-radius:8px;padding:1.2rem}
+h2{margin:0 0 .8rem;font-size:1.1rem;color:#0c6e5e}
+input{width:100%;padding:.6rem;margin:.3rem 0;border:1px solid #bbb;border-radius:4px;font:inherit}
+button{background:#0c6e5e;color:#fff;border:0;border-radius:4px;padding:.6rem 1.2rem;font:inherit;cursor:pointer;margin-top:.4rem}
+pre{background:#eef3f1;padding:.7rem;border-radius:4px;white-space:pre-wrap;word-break:break-all;font-size:1.05rem;min-height:1.5rem}
+</style></head><body>
+<div class="c"><h2>1) Activation code for a student</h2>
+<input id="u1" placeholder="Student username">
+<input id="d1" placeholder="Device code sent by student (e.g. A1B2C3D4-0)">
+<button id="b1">Generate activation code</button><pre id="o1"></pre></div>
+<div class="c"><h2>2) New account line</h2>
+<input id="u2" placeholder="New username">
+<input id="p2" placeholder="New password">
+<button id="b2">Generate account line</button><pre id="o2"></pre>
+<small>Paste the line inside USERS in exam.html, e.g. "user":"hash",</small></div>
+<script>
+const SECRET="Q7m!x92Lw4Rb",SALT="exam-salt";
+const h53=(s,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,c;i<s.length;i++){c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^h1>>>16,2246822507)^Math.imul(h2^h2>>>13,3266489909);h2=Math.imul(h2^h2>>>16,2246822507)^Math.imul(h1^h1>>>13,3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)};
+const H2=s=>h53(s,1)+h53(s,2)+h53(s,3);
+const code=(u,d,n)=>{const x=H2(SECRET+"|"+u+"|"+d+"|"+n).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);return x.match(/.{4}/g).join("-")};
+const $=id=>document.getElementById(id);
+$("b1").onclick=()=>{const u=$("u1").value.trim().toLowerCase(),v=$("d1").value.trim().toUpperCase(),i=v.lastIndexOf("-");$("o1").textContent=(u&&i>0)?code(u,v.slice(0,i),v.slice(i+1)):"Enter username and a valid device code."};
+$("b2").onclick=()=>{const u=$("u2").value.trim().toLowerCase(),p=$("p2").value;$("o2").textContent=(u&&p)?'"'+u+'":"'+H2(SALT+"|"+u+"|"+p)+'",':"Enter username and password."};
+</script></body></html>
